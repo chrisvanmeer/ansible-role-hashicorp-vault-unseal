@@ -1,0 +1,34 @@
+---
+# assert file for ansible-role-hashicorp-vault-unseal
+
+- name: assert | Test Vault address
+  ansible.builtin.assert:
+    that:
+      - hashicorp_vault_address is defined
+      - hashicorp_vault_address is string
+      - hashicorp_vault_address.split(":") | length > 1
+    quiet: true
+
+- name: assert | Test Vault certificate validation
+  ansible.builtin.assert:
+    that:
+      - hashicorp_vault_validate_certs is defined
+      - hashicorp_vault_validate_certs is boolean
+    quiet: true
+
+- name: assert | Test Vault key threshold
+  ansible.builtin.assert:
+    that:
+      - hashicorp_vault_unseal_key_threshold is defined
+      - hashicorp_vault_unseal_key_threshold is number
+      - hashicorp_vault_unseal_key_threshold > 0
+    quiet: true
+
+- name: assert | Test Vault unseal keys
+  ansible.builtin.assert:
+    that:
+      - hashicorp_vault_unseal_keys is defined
+      - hashicorp_vault_unseal_keys is iterable
+      - hashicorp_vault_unseal_keys | length > hashicorp_vault_unseal_key_threshold
+      - hashicorp_vault_unseal_keys is vault_encrytped
+    quiet: true

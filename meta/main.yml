@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  author: Chris van Meer
+  description: HashiCorp Vault Unseal role
+  company: AT Computing
+  namespace: chrisvanmeer
+  role_name: hashicorp_vault_unseal
+
+  license: EUPL-1.2
+
+  min_ansible_version: '2.15'
+
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+
+  galaxy_tags:
+    - hashicorp
+    - vault
+
+dependencies: []

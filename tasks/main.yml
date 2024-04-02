@@ -1,0 +1,45 @@
+---
+# tasks file for ansible-role-hashicorp-vault-unseal
+
+- name: Import assert.yml
+  ansible.builtin.import_tasks:
+    file: assert.yml
+  run_once: true
+
+- name: Retrieve Vault Seal Status
+  ansible.builtin.uri:
+    url: "{{ hashicorp_vault_address }}/{{ hashicorp_vault_api_version }}{{ hashicorp_vault_seal_status_endpoint }}"
+    method: GET
+    headers:
+      Content-Type: "application/json"
+    status_code: 200
+    body_format: json
+    validate_certs: "{{ hashicorp_vault_validate_certs }}"
+  register: seal_status_result
+
+- name: Set fact of Vault unseal state
+  ansible.builtin.set_fact:
+    vault_sealed: "{{ seal_status_result.json.sealed }}"
+
+- name: Unseal HashiCorp Vault
+  when: vault_sealed
+  block:
+    - name: Unseal HashiCorp Vault
+      ansible.builtin.uri:
+        url: "{{ hashicorp_vault_address }}/{{ hashicorp_vault_api_version }}{{ hashicorp_vault_unseal_endpoint }}"
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        body: '{"key": "{{ item }}"}'
+        status_code: 200
+        body_format: json
+        validate_certs: "{{ hashicorp_vault_validate_certs }}"
+      loop: "{{ hashicorp_vault_unseal_keys | random }}"
+      with_sequence:
+        count={{ hashicorp_vault_unseal_key_threshold }}
+      no_log: true
+      register: unseal_result
+
+    - name: Display Unseal Status
+      ansible.builtin.debug:
+        msg: "{{ unseal_result.json }}"
